@@ -3,7 +3,7 @@ import './ProductList.css'
 import CartItem from './CartItem';
 import { useSelector, useDispatch } from 'react-redux';
 import { addItem } from './CartSlice';
-import plantsArray from './PlantData';
+import plantsArray from './plantData';
 import { styleA, styleObj, styleObjUl } from './StyleData';
 import CartIcon from './CartIcon';
 
@@ -120,4 +120,4 @@ function ProductList({ onHomeClick }) {
     );
 }
 
-export default ProductList
+export default ProductList;
