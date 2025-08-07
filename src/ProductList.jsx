@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import './ProductList.css'
+import './ProductList.css';
 import CartItem from './CartItem';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { addItem } from './CartSlice';
+
+
 
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
@@ -10,6 +12,14 @@ function ProductList({ onHomeClick }) {
     const [addedToCart, setAddedToCart] = useState({});
     const dispatch = useDispatch();
     const cartItems = useSelector(state => state.cart.items);
+    useEffect(() => {
+        const added = {};
+        cartItems.forEach(item => {
+          added[item.name] = true;
+        });
+        setAddedToCart(added);
+      }, [cartItems]);
+    
     const plantsArray = [
         {
             category: "Air Purifying Plants",
@@ -223,7 +233,7 @@ function ProductList({ onHomeClick }) {
         padding: '15px',
         display: 'flex',
         justifyContent: 'space-between',
-        alignIems: 'center',
+        alignItems: 'center', 
         fontSize: '20px',
     }
     const styleObjUl = {
@@ -258,13 +268,17 @@ function ProductList({ onHomeClick }) {
         setShowCart(false);
     };
     const handleAddToCart = (product) => {
-        dispatch(addItem(product)); // Dispatch the action to add the product to the cart (Redux action)
-      
-        setAddedToCart((prevState) => ({ // Update the local state to reflect that the product has been added
-          ...prevState, // Spread the previous state to retain existing entries
-          [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
+        const numericCost = parseFloat(product.cost.replace('$', ''));
+        const productWithNumericCost = { ...product, cost: numericCost };
+    
+        dispatch(addItem(productWithNumericCost)); // Redux action
+    
+        setAddedToCart((prevState) => ({
+            ...prevState,
+            [product.name]: true,
         }));
-      };
+    };
+    
       const calculateTotalQuantity = () => {
         return cartItems ? cartItems.reduce((total, item) => total + item.quantity, 0) : 0;
       };
@@ -307,13 +321,20 @@ function ProductList({ onHomeClick }) {
           <div className="product-title">{plant.name}</div> {/* Display plant name */}
           {/* Display other plant details like description and cost */}
           <div className="product-description">{plant.description}</div> {/* Display plant description */}
-          <div className="product-cost">${plant.cost}</div> {/* Display plant cost */}
-          <button
-            className="product-button"
-            onClick={() => handleAddToCart(plant)} // Handle adding plant to cart
-          >
-            Add to Cart
-          </button>
+          <div className="product-cost">${plant.cost}</div>
+ {/* Display plant cost */}
+ <button
+  className="product-button"
+  onClick={() => handleAddToCart(plant)}
+  disabled={!!addedToCart[plant.name]} // désactive si déjà ajouté
+  style={{
+    backgroundColor: addedToCart[plant.name] ? '#ccc' : '#4CAF50',
+    cursor: addedToCart[plant.name] ? 'not-allowed' : 'pointer',
+  }}
+>
+  {addedToCart[plant.name] ? 'Added' : 'Add to Cart'}
+</button>
+
         </div>
       ))}
     </div>
@@ -329,3 +350,4 @@ function ProductList({ onHomeClick }) {
 }
 
 export default ProductList;
+
